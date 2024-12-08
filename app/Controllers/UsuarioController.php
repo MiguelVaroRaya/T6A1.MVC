@@ -53,7 +53,7 @@ class UsuarioController extends Controller
 
     public function show($id)
     {
-        echo "Mostrar usuario con id: {$id}";
+        return $this->view('usuarios.show');
     }
 
     public function edit($id)

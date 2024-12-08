@@ -28,7 +28,7 @@ use App\Models\UsuarioModel;
         <input type="number" name="saldo">
         <br><br>
 
-        <label for="contrasena">Contraseña</label>
+        <label for="contrasena">Contraseña:</label>
         <input type="text" name="contrasena">
         <br><br>
 
@@ -105,6 +105,8 @@ use App\Models\UsuarioModel;
         } else {
             $usuarioModel = new UsuarioModel();
             $usuarioModel -> create(["nombre" => $nombre, "apellidos" => $apellido, "nombre_usuario" => $user, "email" => $email, "fecha_nacimiento" => $fecha, "password" => $contrasena, "saldo" => $saldo]);
+
+            header("location: /");
         }
     }
     ?>

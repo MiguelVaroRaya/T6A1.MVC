@@ -3,7 +3,7 @@
 use App\Models\UsuarioModel;
 ?>
 
-<main class="main_secciones" style="background-color: <?php echo $color; ?>;">
+<main class="main_secciones">
     <form class="formulario" action='/' method="post">
         <label for="user">Usuario</label>
         <input type="text" name="user">

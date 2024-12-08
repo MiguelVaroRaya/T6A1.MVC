@@ -9,7 +9,7 @@
         <a href="base" class="nav__link">
             <p class="nav__text">Creación de base de datos</p>
         </a>
-        <a href="edit" class="nav__link">
+        <a href="/usuario/<?php echo $_SESSION["id"] ?>" class="nav__link">
             <p class="nav__text">Tus datos</p>
         </a>
     <?php } else { ?>
