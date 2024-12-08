@@ -159,14 +159,21 @@ class Model
     // Insertar, recibimos un $_GET o $_POST en $data el parametro table es para definir en que tabla insertamos
     public function create(array $data): object
     {
-        $columns = array_keys($data); // array de claves del array
-        $columns = implode(', ', $columns); // y creamos una cadena separada por ,
+        $query = $this->connection->prepare("SELECT 1 FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = ?");
+        $query->execute([$this->table]);
+        $exists = $query->fetchColumn();
 
-        $values = array_values($data); // array de los valores
+        if ($exists) {
 
-        $sql = "INSERT INTO {$this->table} ({$columns}) VALUES (?" . str_repeat(', ? ', count($values) - 1) . ")";
+            $columns = array_keys($data); // array de claves del array
+            $columns = implode(', ', $columns); // y creamos una cadena separada por ,
 
-        $this->query($sql, $values);
+            $values = array_values($data); // array de los valores
+
+            $sql = "INSERT INTO {$this->table} ({$columns}) VALUES (?" . str_repeat(', ? ', count($values) - 1) . ")";
+
+            $this->query($sql, $values);
+        }
 
         return $this;
     }
