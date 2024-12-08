@@ -1,10 +1,10 @@
 <?php
 
-$color = isset($_COOKIE['colorMain']) ? $_COOKIE['colorMain'] : '#ebeeee';
+use App\Models\UsuarioModel;
 ?>
 
 <main class="main_secciones" style="background-color: <?php echo $color; ?>;">
-    <form class="formulario" action='inicioSesion' method="post">
+    <form class="formulario" action='/' method="post">
         <label for="user">Usuario</label>
         <input type="text" name="user">
         <label for="password">Contraseña</label>
@@ -46,26 +46,19 @@ $color = isset($_COOKIE['colorMain']) ? $_COOKIE['colorMain'] : '#ebeeee';
                 echo ("<p class=error><br>$error</p>");
             }
         } else {
-            $fichero = ".." . DIRECTORY_SEPARATOR . "resources" . DIRECTORY_SEPARATOR . "data" . DIRECTORY_SEPARATOR . "usuarios.json";
+            $usuarioModel = new UsuarioModel();
+            $usuariosTotal = $usuarioModel->select("id", "nombre_usuario", "password")->get();
 
-            $contenido = file_get_contents($fichero);
-
-            $usuarios = json_decode($contenido, true);
-
-            foreach ($usuarios as $usuario) {
-                if ($usuario["nombreUser"] == $user) {
-                    if (password_verify($password, $usuario["contrasena"])) {
-                        $_SESSION["user"] = $usuario["nombreUser"];
-                        $_SESSION["nombre"] = $usuario["nombre"];
-                        $_SESSION["rol"] = $usuario["rol"];
-                        $_SESSION["timeout"] = time();
-                        $_SESSION["inactividad"] = 240;
+            foreach ($usuariosTotal as $usuario) {
+                if ($usuario["nombre_usuario"] == $user) {
+                    if (password_verify($password, $usuario["password"])) {
+                        $_SESSION["id"] = $usuario["id"];
                         header("location: /");
                     }
                 }
             }
 
-            if (!isset($_SESSION["nombre"])) {
+            if (!isset($_SESSION["id"])) {
                 echo ("<p class=error>Datos incorrectos</p>");
             }
         }

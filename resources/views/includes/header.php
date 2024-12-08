@@ -6,7 +6,4 @@
     <div class="cabecera__titulo">
         <h2>OnlineStore</h2>
     </div>
-    <div class="cabecera__login">
-        <a href="carrito"><img src="img/carrito.png" alt=""></a>
-    </div>
 </header>
