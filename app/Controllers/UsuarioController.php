@@ -22,6 +22,11 @@ class UsuarioController extends Controller
         return $this->view('usuarios.create');
     }
 
+    public function crearBase()
+    {
+        return $this->view('usuarios.crearBase');
+    }
+
     public function store()
     {
         // Volvemos a tener acceso al modelo
