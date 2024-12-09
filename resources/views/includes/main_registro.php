@@ -1,8 +1,10 @@
-<main class="main_secciones" style="background-color: <?php
+<?php
 
 use App\Models\UsuarioModel;
 
- echo $color; ?>;">
+?>
+
+<main class="main_secciones"> 
     <form class="formulario" action='registro' method="post">
         <label for="nombre">Nombre:</label>
         <input type="text" name="nombre">

@@ -46,8 +46,12 @@ use App\Models\UsuarioModel;
                 echo ("<p class=error><br>$error</p>");
             }
         } else {
-            $usuarioModel = new UsuarioModel();
-            $usuariosTotal = $usuarioModel->select("id", "nombre_usuario", "password")->get();
+            try {
+                $usuarioModel = new UsuarioModel();
+                $usuariosTotal = $usuarioModel->select("id", "nombre_usuario", "password")->get();
+            } catch (PDOException $e) {
+                echo $e->getMessage();
+            }
 
             foreach ($usuariosTotal as $usuario) {
                 if ($usuario["nombre_usuario"] == $user) {

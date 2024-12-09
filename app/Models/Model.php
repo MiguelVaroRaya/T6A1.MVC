@@ -23,6 +23,7 @@ class Model
     private $select = '*';
     private $where, $values = [];
     private $orderBy;
+    private $limit;
     protected $table;
 
     public function __construct()
@@ -77,6 +78,7 @@ class Model
     public function select(string ...$columns): object
     {
         // Separamos el array en una cadena con ,
+        $this->query = null;
         $this->select = implode(', ', $columns);
 
         return $this;
@@ -106,6 +108,10 @@ class Model
 
             if ($this->orderBy) {
                 $sql .= " ORDER BY {$this->orderBy}";
+            }
+
+            if ($this->limit) {
+                $sql .= " LIMIT {$this->limit}";
             }
 
             $this->query = $this->connection->prepare($sql);
@@ -152,6 +158,13 @@ class Model
         } else {
             $this->orderBy = "{$column} {$order}";
         }
+
+        return $this;
+    }
+    
+    public function limit(int $inicio, int $registros): object
+    {
+        $this->limit = "{$registros} OFFSET {$inicio}";
 
         return $this;
     }
@@ -230,7 +243,7 @@ class Model
         $this->query($sql, [$id], 'i');
     }
     // en este metodo llamamos dentro al select y las claves para comparar y hacer el join las pasamos desde fuera
-    public function innerJoin(string $primaria, string $foranea): array
+    /* public function innerJoin(string $primaria, string $foranea): array
     {
         //consulta
         $sql = "SELECT {$this->select} FROM {$this->table} INNER JOIN {$this->table2} ON {$primaria}={$foranea}";
@@ -239,7 +252,7 @@ class Model
         $this->query->execute();
         //para obtener los datos del select
         return $this->query->fetchall(\PDO::FETCH_ASSOC);
-    }
+    } */
     // pasamos $data 1 que serian los campos correspondientes al objeto padre producto producto->getnombre, etc...
     //data2 sería pro ejmplo solo la talla en el caso de ropa ropa->get
     public function crearProducto(array $data1, array $data2): string
@@ -267,7 +280,7 @@ class Model
     }
 
     // en este metodo llamamos dentro al select y las claves para comparar y hacer el join las pasamos desde fuera
-    public function innerJoinFind(string $primaria, string $foranea, int $id): array
+    /* public function innerJoinFind(string $primaria, string $foranea, int $id): array
     {
         //consulta
         $sql = "SELECT {$this->select} FROM {$this->table} INNER JOIN {$this->table2} ON {$primaria}={$foranea} WHERE productos.id =?";
@@ -276,7 +289,7 @@ class Model
         $this->query->execute([$id]);
         //para obtener los datos del select
         return $this->query->fetch(\PDO::FETCH_ASSOC);
-    }
+    } */
     public function actualizarDatos(array $data): object
     {
 

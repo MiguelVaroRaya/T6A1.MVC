@@ -7,12 +7,11 @@ if (!isset($_SESSION["id"])) {
 }
 
 $usuarioModel = new UsuarioModel();
-$usuario = $usuarioModel->find($_SESSION["id"]);
-
+$usuario = $usuarioModel->find($data);
 ?>
 
 <main class="main_secciones">
-    <form class="formulario" action='/usuario/<?php echo $_SESSION["id"] ?>' method="post">
+    <form class="formulario" action='/usuario/<?php echo $data ?>' method="post">
 
         <label for="nombre">Nombre:</label>
         <input type="text" name="nombre" value="<?php echo $usuario["nombre"]; ?>">
@@ -102,7 +101,7 @@ if (isset($_POST["enviar"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
             echo ("<p class=error><br>$error</p>");
         }
     } else {
-        $usuarioModel->update($_SESSION["id"], ["nombre" => $nombre, "apellidos" => $apellido, "nombre_usuario" => $user, "email" => $email, "fecha_nacimiento" => $fecha, "saldo" => $saldo]);
-        header("location: /usuario/" . $_SESSION["id"]);
+        $usuarioModel->update($data, ["nombre" => $nombre, "apellidos" => $apellido, "nombre_usuario" => $user, "email" => $email, "fecha_nacimiento" => $fecha, "saldo" => $saldo]);
+        header("location: /usuario/" . $data);
     }
 }

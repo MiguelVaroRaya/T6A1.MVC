@@ -17,7 +17,6 @@ $usuarioModel -> createTable($columnas);
 
 $nombres = ["miguel", "david", "lucia", "laura", "antonio"];
 $apellidos = ["garcia", "jimenez", "perez", "ruiz", "mora"];
-$nombresUser = ["user1782", "user5000", "userPRO", "userSinNombres", "user5"];
 $emails = ["emailprueba@gmail.com", "emailutil@gmail.com", "emailtrabajo@gmail.com", "emailcasa@gmail.com", "emailvacio@gmail.com"];
 $fechasNac = ["2002-10-10", "1990-10-17", "1995-10-21", "2005-10-01", "2003-10-11"];
 $password = "User123_";
@@ -26,7 +25,7 @@ $saldos = [785, 1900, 4130, 1050, 2420];
 for ($i=0; $i < 25; $i++) { 
     $nombre = $nombres[array_rand($nombres)];
     $apellido = $apellidos[array_rand($apellidos)];
-    $nombreUser = $nombresUser[array_rand($nombresUser)];
+    $nombreUser = $nombre . $i;
     $email = $emails[array_rand($emails)];
     $fechaNac = $fechasNac[array_rand($fechasNac)];
     $saldo = $saldos[array_rand($saldos)];

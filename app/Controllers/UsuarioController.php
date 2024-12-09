@@ -37,6 +37,11 @@ class UsuarioController extends Controller
         return $this->view('usuarios.registro');
     }
 
+    public function gestionUser()
+    {
+        return $this->view('usuarios.gestionUsuarios');
+    }
+
     public function store()
     {
         // Volvemos a tener acceso al modelo
@@ -53,7 +58,13 @@ class UsuarioController extends Controller
 
     public function show($id)
     {
-        return $this->view('usuarios.show');
+        $id = intval($id);
+        return $this->view('usuarios.show', $id);
+    }
+
+    public function borrar($id)
+    {
+        return $this->view('usuarios.borrar', $id);
     }
 
     public function edit($id)
