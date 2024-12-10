@@ -24,6 +24,7 @@ class Model
     private $where, $values = [];
     private $orderBy;
     private $limit;
+    private $whereLike;
     protected $table;
 
     public function __construct()
@@ -106,6 +107,10 @@ class Model
                 $sql .= " WHERE {$this->where}";
             }
 
+            if ($this->whereLike) {
+                $sql .= " WHERE {$this->whereLike}";
+            }
+
             if ($this->orderBy) {
                 $sql .= " ORDER BY {$this->orderBy}";
             }
@@ -165,6 +170,29 @@ class Model
     public function limit(int $inicio, int $registros): object
     {
         $this->limit = "{$registros} OFFSET {$inicio}";
+
+        return $this;
+    }
+
+    public function whereLike(array $column, array $value, string $chainType = 'AND'): object
+    {
+        if (count($column) == 0 || count($column) != count($value)) {
+            return $this;
+        }
+
+        $this->whereLike = "{$column[0]} LIKE '%{$value[0]}%'";
+
+        if (count($column) > 1) {
+            for ($i = 1; $i < count($column); $i++) {
+                $this->whereLike .= " {$chainType} {$column[$i]} LIKE '%{$value[$i]}%'";
+            }
+        }
+        
+        /* if ($this->whereLike) {
+            $this->whereLike .= " {$chainType} {$column} LIKE {$value}";
+        } else {
+            $this->whereLike = "{$column} LIKE {$value}";
+        } */
 
         return $this;
     }

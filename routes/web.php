@@ -14,6 +14,7 @@ Route::get('cerrar', [UsuarioController::class, 'cerrarSesion']);
 Route::get('/base', [UsuarioController::class, 'crearBase']);
 Route::post('/registro', [UsuarioController::class, 'registro']);
 Route::get('/gestion', [UsuarioController::class, 'gestionUser']);
+Route::post('/gestion', [UsuarioController::class, 'gestionUser']);
 Route::get('/usuario/nuevo', [UsuarioController::class, 'create']);
 Route::get('/usuario', [UsuarioController::class, 'index']);
 Route::get('/usuario/pruebas', [UsuarioController::class, 'pruebasSQLQueryBuilder']);
