@@ -187,12 +187,21 @@ class Model
                 $this->whereLike .= " {$chainType} {$column[$i]} LIKE '%{$value[$i]}%'";
             }
         }
-        
-        /* if ($this->whereLike) {
-            $this->whereLike .= " {$chainType} {$column} LIKE {$value}";
+
+        return $this;
+    }
+
+    public function whereBetween(string $column, array $value, string $chainType = 'AND'): object
+    {
+        if (count($value) == 0) {
+            return $this;
+        }
+
+        if ($this->whereLike) {
+            $this->whereLike .= " {$chainType} {$column} BETWEEN {$value[0]} AND {$value[1]}";
         } else {
-            $this->whereLike = "{$column} LIKE {$value}";
-        } */
+            $this->whereLike = "{$column} BETWEEN {$value[0]} AND {$value[1]}";
+        }
 
         return $this;
     }

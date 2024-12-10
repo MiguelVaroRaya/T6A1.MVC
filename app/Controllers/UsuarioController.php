@@ -77,6 +77,7 @@ class UsuarioController extends Controller
 
             $_SESSION["columnas"] = [];
             $_SESSION["valores"] = [];
+            $_SESSION["valoresSaldo"] = [];
 
             if (!empty($id)) {
                 $_SESSION["columnas"][] = "id";
@@ -107,6 +108,18 @@ class UsuarioController extends Controller
                 $_SESSION["columnas"][] = "fecha_nacimiento";
                 $_SESSION["valores"][] = $fecha;
             }
+
+            if (!empty($saldoMin)) {
+                $_SESSION["valoresSaldo"][] = $saldoMin;
+            } else {
+                $_SESSION["valoresSaldo"][] = 0;
+            }
+
+            if (!empty($saldoMax)) {
+                $_SESSION["valoresSaldo"][] = $saldoMax;
+            } else {
+                $_SESSION["valoresSaldo"][] = 999999999;
+            }
         }
 
         if (empty($_REQUEST["p"])) {
@@ -118,7 +131,7 @@ class UsuarioController extends Controller
         }
 
         $usuarioModel = new UsuarioModel();
-        $usuariosTotal = $usuarioModel->select("id", "nombre", "apellidos", "nombre_usuario", "email", "fecha_nacimiento", "saldo")->whereLike($_SESSION["columnas"], $_SESSION["valores"])->get();
+        $usuariosTotal = $usuarioModel->select("id", "nombre", "apellidos", "nombre_usuario", "email", "fecha_nacimiento", "saldo")->whereLike($_SESSION["columnas"], $_SESSION["valores"])->whereBetween("saldo", $_SESSION["valoresSaldo"])->get();
         $cantidad = count($usuariosTotal);
         $registros = 5;
         $pagina = $_REQUEST["p"];
@@ -127,7 +140,7 @@ class UsuarioController extends Controller
         } else {
             $inicio = 0;
         }
-        $busqueda = $usuarioModel->select("id", "nombre", "apellidos", "nombre_usuario", "email", "fecha_nacimiento", "saldo")->whereLike($_SESSION["columnas"], $_SESSION["valores"])->limit($inicio, $registros)->get();
+        $busqueda = $usuarioModel->select("id", "nombre", "apellidos", "nombre_usuario", "email", "fecha_nacimiento", "saldo")->whereLike($_SESSION["columnas"], $_SESSION["valores"])->whereBetween("saldo", $_SESSION["valoresSaldo"])->limit($inicio, $registros)->get();
         $paginas = ceil($cantidad / $registros);
 
         $data["busqueda"] = $busqueda;

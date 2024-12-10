@@ -50,6 +50,7 @@ class HomeController extends Controller
                             $_SESSION["id"] = $usuario["id"];
                             $_SESSION["columnas"] = [];
                             $_SESSION["valores"] = [];
+                            $_SESSION["valoresSaldo"] = [];
                             $cambio = true;
                             header("location: /");
                         }
