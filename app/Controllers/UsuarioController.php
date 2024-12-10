@@ -6,22 +6,13 @@ use App\Models\UsuarioModel;
 
 class UsuarioController extends Controller
 {
-    public function index()
+    public function filtrado(string $datos): string
     {
-        // Creamos la conexión y tenemos acceso a todas las consultas sql del modelo
-        $usuarioModel = new UsuarioModel();
-
-        // Se recogen los valores del modelo, ya se pueden usar en la vista
-        $usuarios = $usuarioModel->consultaPrueba();
-
-        return $this->view('usuarios.index', $usuarios); // compact crea un array de índice usuarios
+        $datos = trim($datos); // Elimina espacios antes y después de los datos 
+        $datos = stripslashes($datos); // Elimina backslashes \ 
+        $datos = htmlspecialchars($datos);  // Traduce caracteres especiales en entidades HTML 
+        return $datos;
     }
-
-    public function create()
-    {
-        return $this->view('usuarios.create');
-    }
-
     public function crearBase()
     {
         $usuarioModel = new UsuarioModel();
@@ -67,79 +58,226 @@ class UsuarioController extends Controller
         header("location: /");
     }
 
-    public function registro()
-    {
-        return $this->view('usuarios.registro');
-    }
-
     public function gestionUser()
     {
-        return $this->view('usuarios.gestionUsuarios');
-    }
+        if (!isset($_SESSION["id"])) {
+            header("Location: /");
+        }
 
-    public function store()
-    {
-        // Volvemos a tener acceso al modelo
+        if (isset($_POST["filtrar"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
+            $id = $this->filtrado($_POST["id"]);
+            $nombre = $this->filtrado($_POST["nombre"]);
+            $apellidos = $this->filtrado($_POST["apellidos"]);
+            $user = $this->filtrado($_POST["user"]);
+            $email = $this->filtrado($_POST["email"]);
+            $fecha = $this->filtrado($_POST["fecha"]);
+            $saldoMin = $this->filtrado($_POST["saldo_min"]);
+            $saldoMax = $this->filtrado($_POST["saldo_max"]);
+            $errorNum = 0;
+
+            $_SESSION["columnas"] = [];
+            $_SESSION["valores"] = [];
+
+            if (!empty($id)) {
+                $_SESSION["columnas"][] = "id";
+                $_SESSION["valores"][] = $id;
+            }
+
+            if (!empty($nombre)) {
+                $_SESSION["columnas"][] = "nombre";
+                $_SESSION["valores"][] = $nombre;
+            }
+
+            if (!empty($apellidos)) {
+                $_SESSION["columnas"][] = "apellidos";
+                $_SESSION["valores"][] = $apellidos;
+            }
+
+            if (!empty($user)) {
+                $_SESSION["columnas"][] = "nombre_usuario";
+                $_SESSION["valores"][] = $user;
+            }
+
+            if (!empty($email)) {
+                $_SESSION["columnas"][] = "email";
+                $_SESSION["valores"][] = $email;
+            }
+
+            if (!empty($fecha)) {
+                $_SESSION["columnas"][] = "fecha_nacimiento";
+                $_SESSION["valores"][] = $fecha;
+            }
+        }
+
+        if (empty($_REQUEST["p"])) {
+            $_REQUEST["p"] = 1;
+        }
+
+        if ($_REQUEST["p"] == "") {
+            $_REQUEST["p"] = 1;
+        }
+
         $usuarioModel = new UsuarioModel();
+        $usuariosTotal = $usuarioModel->select("id", "nombre", "apellidos", "nombre_usuario", "email", "fecha_nacimiento", "saldo")->whereLike($_SESSION["columnas"], $_SESSION["valores"])->get();
+        $cantidad = count($usuariosTotal);
+        $registros = 5;
+        $pagina = $_REQUEST["p"];
+        if (is_numeric($pagina)) {
+            $inicio = ($pagina - 1) * $registros;
+        } else {
+            $inicio = 0;
+        }
+        $busqueda = $usuarioModel->select("id", "nombre", "apellidos", "nombre_usuario", "email", "fecha_nacimiento", "saldo")->whereLike($_SESSION["columnas"], $_SESSION["valores"])->limit($inicio, $registros)->get();
+        $paginas = ceil($cantidad / $registros);
 
-        // Se llama a la función correpondiente, pasando como parámetro
-        // $_POST
-        var_dump($_POST);
-        echo "Se ha enviado desde POST";
+        $data["busqueda"] = $busqueda;
+        $data["paginas"] = $paginas;
 
-        // Podríamos redirigir a donde se desee después de insertar
-        //return $this->redirect('/contacts');
+        return $this->view('usuarios.gestionUsuarios', $data);
     }
 
     public function show($id)
     {
-        $id = intval($id);
-        return $this->view('usuarios.show', $id);
+        $errores = [];
+        $data[] = $id;
+
+        if (!isset($_SESSION["id"]) || $_SESSION["id"] != $id) {
+            header("Location: /");
+        }
+
+        $usuarioModel = new UsuarioModel();
+        $usuario = $usuarioModel->find($id);
+        $data[] = $usuario;
+
+        if (isset($_POST["enviar"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
+            $nombre = $this->filtrado($_POST["nombre"]);
+            $apellido = $this->filtrado($_POST["apellido"]);
+            $user = $this->filtrado($_POST["user"]);
+            $email = $this->filtrado($_POST["email"]);
+            $fecha = $this->filtrado($_POST["fecha"]);
+            $saldo = $this->filtrado($_POST["saldo"]);
+            $errorNum = 0;
+
+            if (empty($nombre) || !preg_match('/^[a-zA-Z]{1,20}$/', $nombre)) {
+                $errorNum++;
+                $errores[] = "El nombre no cumple el formato correcto.";
+            } else {
+                $nombre = strtolower($nombre);
+                $nombre = ucfirst($nombre);
+            }
+
+            if (empty($apellido) || !preg_match('/^[a-zA-Z]+$/', $apellido)) {
+                $errorNum++;
+                $errores[] = "El apellido no cumple el formato correcto.";
+            } else {
+                $apellido = strtolower($apellido);
+                $apellido = ucfirst($apellido);
+            }
+
+            if (empty($user) || !preg_match('/^[a-zA-Z0-9]{1,20}$/', $user)) {
+                $errorNum++;
+                $errores[] = "El nombre de usuario no cumple el formato correcto.";
+            }
+
+            if (empty($email) || !preg_match('/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/', $email)) {
+                $errorNum++;
+                $errores[] = "El email no cumple el formato correcto";
+            }
+
+            if (empty($fecha) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha) || !strtotime($fecha)) {
+                $errorNum++;
+                $errores[] = "La fecha no cumple el formato correcto";
+            }
+
+            if (empty($saldo) || !preg_match('/^[0-9]+$/', $saldo)) {
+                $errorNum++;
+                $errores[] = "El saldo no cumple el formato correcto";
+            }
+
+            if ($errorNum == 0) {
+                $usuarioModel->update($id, ["nombre" => $nombre, "apellidos" => $apellido, "nombre_usuario" => $user, "email" => $email, "fecha_nacimiento" => $fecha, "saldo" => $saldo]);
+                header("location: /usuario/" . $id);
+            }
+        }
+        $data[] = $errores;
+
+        return $this->view('usuarios.show', $data);
     }
 
     public function borrar($id)
     {
-        return $this->view('usuarios.borrar', $id);
-    }
-
-    public function edit($id)
-    {
-        echo "Editar usuario";
-    }
-
-    public function update($id)
-    {
-        echo "Actualizar usuario";
-    }
-
-    public function destroy($id)
-    {
-        echo "Borrar usuario";
-    }
-
-    // Función para mostrar como fuciona con ejemplos
-    public function pruebasSQLQueryBuilder()
-    {
-        // Se instancia el modelo
         $usuarioModel = new UsuarioModel();
-        // Descomentar consultas para ver la creación
-        //$usuarioModel->all();
-        //$usuarioModel->select('columna1', 'columna2')->get();
-        // $usuarioModel->select('columna1', 'columna2')
-        //             ->where('columna1', '>', '3')
-        //             ->orderBy('columna1', 'DESC')
-        //             ->get();
-        // $usuarioModel->select('columna1', 'columna2')
-        //             ->where('columna1', '>', '3')
-        //             ->where('columna2', 'columna3')
-        //             ->where('columna2', 'columna3')
-        //             ->where('columna3', '!=', 'columna4', 'OR')
-        //             ->orderBy('columna1', 'DESC')
-        //             ->get();
-        //$usuarioModel->create(['id' => 1, 'nombre' => 'nombre1']);
-        //$usuarioModel->delete(['id' => 1]);
-        //$usuarioModel->update(['id' => 1], ['nombre' => 'NombreCambiado']);
 
-        echo "Pruebas SQL Query Builder";
+        $usuarioModel->delete($id);
+
+        header("location: /gestion");
+    }
+
+    public function editar($id)
+    {
+        $errores = [];
+        $data[] = $id;
+
+        if (!isset($_SESSION["id"])) {
+            header("Location: /");
+        }
+
+        $usuarioModel = new UsuarioModel();
+        $usuario = $usuarioModel->find($id);
+        $data[] = $usuario;
+
+        if (isset($_POST["enviar"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
+            $nombre = $this->filtrado($_POST["nombre"]);
+            $apellido = $this->filtrado($_POST["apellido"]);
+            $user = $this->filtrado($_POST["user"]);
+            $email = $this->filtrado($_POST["email"]);
+            $fecha = $this->filtrado($_POST["fecha"]);
+            $saldo = $this->filtrado($_POST["saldo"]);
+            $errorNum = 0;
+
+            if (empty($nombre) || !preg_match('/^[a-zA-Z]{1,20}$/', $nombre)) {
+                $errorNum++;
+                $errores[] = "El nombre no cumple el formato correcto.";
+            } else {
+                $nombre = strtolower($nombre);
+                $nombre = ucfirst($nombre);
+            }
+
+            if (empty($apellido) || !preg_match('/^[a-zA-Z]+$/', $apellido)) {
+                $errorNum++;
+                $errores[] = "El apellido no cumple el formato correcto.";
+            } else {
+                $apellido = strtolower($apellido);
+                $apellido = ucfirst($apellido);
+            }
+
+            if (empty($user) || !preg_match('/^[a-zA-Z0-9]{1,20}$/', $user)) {
+                $errorNum++;
+                $errores[] = "El nombre de usuario no cumple el formato correcto.";
+            }
+
+            if (empty($email) || !preg_match('/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/', $email)) {
+                $errorNum++;
+                $errores[] = "El email no cumple el formato correcto";
+            }
+
+            if (empty($fecha) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha) || !strtotime($fecha)) {
+                $errorNum++;
+                $errores[] = "La fecha no cumple el formato correcto";
+            }
+
+            if (empty($saldo) || !preg_match('/^[0-9]+$/', $saldo)) {
+                $errorNum++;
+                $errores[] = "El saldo no cumple el formato correcto";
+            }
+
+            if ($errorNum == 0) {
+                $usuarioModel->update($id, ["nombre" => $nombre, "apellidos" => $apellido, "nombre_usuario" => $user, "email" => $email, "fecha_nacimiento" => $fecha, "saldo" => $saldo]);
+                header("location: /gestion");
+            }
+        }
+        $data[] = $errores;
+
+        return $this->view('usuarios.editar', $data);
     }
 }

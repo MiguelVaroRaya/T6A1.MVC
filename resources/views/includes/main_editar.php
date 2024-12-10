@@ -1,5 +1,5 @@
 <main class="main_secciones">
-    <form class="formulario" action='/usuario/<?php echo $data[0] ?>' method="post">
+    <form class="formulario" action='/usuario/editar/<?php echo $data[0] ?>' method="post">
 
         <label for="nombre">Nombre:</label>
         <input type="text" name="nombre" value="<?php echo $data[1]["nombre"]; ?>">
