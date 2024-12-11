@@ -330,6 +330,10 @@ class Model
                 throw new \Exception("El usuario destinatario no existe.");
             }
 
+            if ($usuario["id"] == $destinatario[0]["id"]) {
+                throw new \Exception("No puedes transferir dinero a ti mismo.");
+            }
+
             $nuevoSaldoUsuario = $usuario["saldo"] - $dinero;
             $nuevoSaldoDestinatario = $destinatario[0]["saldo"] + $dinero;
 
