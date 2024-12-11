@@ -212,6 +212,28 @@ class UsuarioController extends Controller
                 header("location: /usuario/" . $id);
             }
         }
+
+        if (isset($_POST["transaccion"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
+            $nombreUsuario = $this->filtrado($_POST["nombre_user"]);
+            $cantidad = $this->filtrado($_POST["cantidad"]);
+            $errorNum = 0;
+
+            if (empty($nombreUsuario) || !preg_match('/^[a-zA-Z0-9]{1,20}$/', $nombreUsuario)) {
+                $errorNum++;
+                $errores[] = "El nombre de usuario no cumple el formato correcto.";
+            }
+
+            if (empty($cantidad) || !preg_match('/^[0-9]+$/', $cantidad)) {
+                $errorNum++;
+                $errores[] = "La cantidad no cumple el formato correcto";
+            }
+
+            if ($errorNum == 0) {
+                $usuarioModel->enviarDinero($usuario, $nombreUsuario, $cantidad);
+                header("location: /usuario/" . $id);
+            }
+        }
+
         $data[] = $errores;
 
         return $this->view('usuarios.show', $data);

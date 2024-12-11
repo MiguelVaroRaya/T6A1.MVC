@@ -25,7 +25,20 @@
         <input type="number" name="saldo" value="<?php echo $data[1]["saldo"]; ?>">
         <br><br>
 
-        <input type="submit" name="enviar" value="Enviar">
+        <input type="submit" name="enviar" value="Modificar">
+    </form>
+
+    <form class="formulario" action='/usuario/<?php echo $data[0] ?>' method="post">
+
+        <label for="nombre_user">Nombre de usuario:</label>
+        <input type="text" name="nombre_user">
+        <br><br>
+
+        <label for="cantidad">Cantidad:</label>
+        <input type="text" name="cantidad">
+        <br><br>
+
+        <input type="submit" name="transaccion" value="Realizar transaccion">
     </form>
 
     <?php

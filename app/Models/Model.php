@@ -166,7 +166,7 @@ class Model
 
         return $this;
     }
-    
+
     public function limit(int $inicio, int $registros): object
     {
         $this->limit = "{$registros} OFFSET {$inicio}";
@@ -308,6 +308,37 @@ class Model
             //  echos para pruebas en la app se gestionara con un mensaje en pantalla
             $mensaje = "El nuevo producto se registró correctamente";
             return $mensaje;
+        } catch (\Exception $e) {
+            // deshacemos la transacción 
+            $this->connection->rollback();
+            $error = "Error en el registro" . $e->getMessage();
+            return $error;
+        }
+    }
+
+    public function enviarDinero(array $usuario, string $user, int $dinero): string
+    {
+        try {
+            $this->connection->beginTransaction();
+            if ($usuario["saldo"] < $dinero) {
+                throw new \Exception("Saldo insuficiente para realizar la transferencia.");
+            }
+
+            $destinatario = $this->select("id", "saldo")->where("nombre_usuario", "=", $user)->get();
+
+            if (!$destinatario) {
+                throw new \Exception("El usuario destinatario no existe.");
+            }
+
+            $nuevoSaldoUsuario = $usuario["saldo"] - $dinero;
+            $nuevoSaldoDestinatario = $destinatario[0]["saldo"] + $dinero;
+
+            $this->update($usuario["id"], ["saldo" => $nuevoSaldoUsuario]);
+            $this->update($destinatario[0]["id"], ["saldo" => $nuevoSaldoDestinatario]);
+
+            $this->connection->commit();
+
+            return "Transferencia realizada correctamente.";
         } catch (\Exception $e) {
             // deshacemos la transacción 
             $this->connection->rollback();

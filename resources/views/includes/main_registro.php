@@ -1,9 +1,3 @@
-<?php
-
-use App\Models\UsuarioModel;
-
-?>
-
 <main class="main_secciones">
     <form class="formulario" action='registro' method="post">
         <label for="nombre">Nombre:</label>
