@@ -35,7 +35,7 @@ class UsuarioController extends Controller
         $password = "User123_";
         $saldos = [785, 1900, 4130, 1050, 2420];
 
-        for ($i = 0; $i < 25; $i++) {
+        for ($i = 0; $i < 100; $i++) {
             $nombre = $nombres[array_rand($nombres)];
             $apellido = $apellidos[array_rand($apellidos)];
             $nombreUser = $nombre . $i;
